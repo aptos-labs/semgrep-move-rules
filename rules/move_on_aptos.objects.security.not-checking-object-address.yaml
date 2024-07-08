@@ -1,0 +1,52 @@
+rules:
+  - id: rust-missing-ownership-check-copy-copy
+    message: The function does not verify if the user owns the obj passed to it.
+      This can allow anyone to use another person's subscription, bypassing the
+      payment requirement.
+    severity: ERROR
+    languages:
+      - move_on_aptos
+    mode: taint
+    options:
+      interfile: true
+      symbolic_propagation: true
+    pattern-sources:
+      - patterns:
+          - pattern-inside: |
+              fun $FN_NAME(..., $OBJ: Object<$TYPE2>, ...) {
+                ...
+              }
+          - focus-metavariable: $OBJ
+    pattern-sanitizers:
+      - patterns:
+          - pattern-either:
+            # standalone checker
+            # TODO: if interfile analysis is not enabled, consider adding some safe
+            #       library functions to the standalone checker list, such as:
+            # - pattern: aptos_framework::code::freeze_code_object(..., $OBJ, ...)
+            - pattern: fungible_asset::deposit_sanity_check($OBJ, ...)
+
+            # conditional checker
+            - patterns:
+              # scope: inside assert() or if() block
+              - pattern-either:
+                  - pattern-inside: assert!(...)
+                  - pattern-inside: if (...) { ... }
+              # checker:
+              - pattern-either:
+                  - pattern: aptos_framework::object::owner(& $OBJ)
+                  - pattern: aptos_framework::object::is_owner($OBJ, ...)
+          - focus-metavariable: $OBJ
+        by-side-effect: true
+    pattern-sinks:
+      - patterns:
+        # the following patterns alone are not considered sinks
+        - pattern-not-inside: assert!(...)
+        - pattern-not-inside: exists<...>(...)
+        - pattern-not-inside: let $LEFT = aptos_framework::object::object_address(...)
+        - pattern-not: let $LEFT = $OBJ.inner
+
+        # real sinks:
+        - pattern: $OBJ
+        - focus-metavariable: $OBJ
+      
