@@ -65,7 +65,7 @@ rules:
         # the following patterns alone are not considered sinks
         - pattern-not-inside: assert!(...)
         - pattern-not-inside: exists<...>(...)
-        - pattern-not-inside: let $LEFT = aptos_framework::object::object_address(...)
+        - pattern-not-inside: let $LEFT = object::object_address(...)
         - pattern-not: let $LEFT = $OBJ.inner
 
         # real sinks:
