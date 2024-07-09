@@ -1,5 +1,5 @@
 rules:
-  - id: rust-missing-ownership-check-copy-copy
+  - id: missing-ownership-check
     message: The function does not verify if the user owns the obj passed to it.
       This can allow anyone to use another person's subscription, bypassing the
       payment requirement.
