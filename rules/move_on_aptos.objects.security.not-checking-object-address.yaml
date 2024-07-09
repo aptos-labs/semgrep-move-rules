@@ -4,6 +4,7 @@ rules:
       This can allow anyone to use another person's subscription, bypassing the
       payment requirement.
     severity: ERROR
+    confidence: MEDIUM
     languages:
       - move_on_aptos
     mode: taint
@@ -12,10 +13,15 @@ rules:
       symbolic_propagation: true
     pattern-sources:
       - patterns:
-          - pattern-inside: |
-              fun $FN_NAME(..., $OBJ: Object<$TYPE2>, ...) {
-                ...
-              }
+          - pattern-either:
+            - pattern-inside: |
+                fun $FN_NAME(..., $SIGNER: &signer, ..., $OBJ: Object<$TYPE>, ...) {
+                  ...
+                }
+            - pattern-inside: |
+                fun $FN_NAME(..., $OBJ: Object<$TYPE>, ..., $SIGNER: &signer, ...) {
+                  ...
+                }
           - focus-metavariable: $OBJ
     pattern-sanitizers:
       - patterns:
@@ -23,7 +29,7 @@ rules:
             # standalone checker
             # TODO: if interfile analysis is not enabled, consider adding some safe
             #       library functions to the standalone checker list, such as:
-            # - pattern: aptos_framework::code::freeze_code_object(..., $OBJ, ...)
+            - pattern: aptos_framework::code::freeze_code_object(..., $OBJ, ...)
             - pattern: fungible_asset::deposit_sanity_check($OBJ, ...)
 
             # conditional checker
@@ -34,8 +40,24 @@ rules:
                   - pattern-inside: if (...) { ... }
               # checker:
               - pattern-either:
+                  # wildcard patterns
+                  - pattern: |
+                      $SANITIZER(..., $OBJ, ..., ($SIGNER: &signer), ...)
+                  - pattern: |
+                      $SANITIZER(..., ($SIGNER: &signer), ..., $OBJ, ...)
+                  - pattern: $CHECK($OBJ)
+                  - pattern: $CHECK(& $OBJ)
+
+                  # specific patterns
                   - pattern: aptos_framework::object::owner(& $OBJ)
+                  - pattern: std::object::owner(& $OBJ)
+
                   - pattern: aptos_framework::object::is_owner($OBJ, ...)
+                  - pattern: std::object::is_owner($OBJ, ...)
+
+                  - pattern: aptos_framework::object::owns($OBJ, ...)
+
+                  - pattern: collection::creator($OBJ)
           - focus-metavariable: $OBJ
         by-side-effect: true
     pattern-sinks:
