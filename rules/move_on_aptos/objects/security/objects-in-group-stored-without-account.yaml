@@ -1,5 +1,5 @@
 rules:
-  - id: objects-stored-without-account
+  - id: objects-in-group-stored-without-account
     languages:
       - move_on_aptos
     severity: WARNING
@@ -18,11 +18,17 @@ rules:
       
       # We are looking for double (or more) move_to calls with object within the same
       # resource group.
-      - pattern-inside: |-
-          move_to($DEST, $VAR);
-          ...
-          move_to($DEST, ...);
-          ...
+      - pattern-either:
+        - pattern-inside: |-
+            move_to($DEST, $VAR);
+            ...
+            move_to($DEST, ...);
+            ...
+        - pattern-inside: |-
+            move_to($DEST, ...);
+            ...
+            move_to($DEST, $VAR);
+            ...
       - metavariable-pattern:
           metavariable: $VAR
           patterns:
