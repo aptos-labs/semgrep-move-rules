@@ -1,10 +1,10 @@
-# Aptos Labs public Semgrep rules
+# Aptos Labs public Semgrep rules for Move
 
-This repository features Semgrep rules developed by Aptos Labs, now available to the public. These rules are integral to our continuous development efforts, utilized in our security audits and internal projects, and will evolve as we discover new techniques.
+This repository features Semgrep rules for Move developed and maintained by Aptos Labs. These rules are integral to our continuous security efforts, are utilized in our code audits and internal projects, and will evolve as we discover new code patterns.
 
 We share these rules with the community to aid Smart Contract developers in enhancing their code security and to provide researchers with a valuable tool to maximize the impact of their audits.
 
-Visit [Testing Handbook](https://appsec.guide/docs/static-analysis/semgrep/) for Semgrep guidance.
+Trail of Bit's [Testing Handbook](https://appsec.guide/docs/static-analysis/semgrep/) provides a great introduction to Semgrep.
 
 ## Using Semgrep
 
