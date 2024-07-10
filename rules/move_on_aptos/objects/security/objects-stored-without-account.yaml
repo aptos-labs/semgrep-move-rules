@@ -2,11 +2,12 @@ rules:
   - id: objects-stored-without-account
     languages:
       - move_on_aptos
-    severity: ERROR
+    severity: WARNING
     confidence: MEDIUM
     message: >
-      Storing different objects in the same account is not recommended. Objects
-      should be stored at separate object accounts.
+      Storing different objects under the same resource group in the same account is not recommended.
+      Transferring one of them can influence the entire collection. Objects should be stored at
+      separate object accounts.
     patterns:
       - pattern-inside: |-
           #[resource_group_member(group = ...)]
