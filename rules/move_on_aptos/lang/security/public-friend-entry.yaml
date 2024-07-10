@@ -1,7 +1,7 @@
 rules:
   - id: public-friend-entry
     languages: [move_on_aptos]
-    message: Public friend functions should not be entry points.
+    message: This function is `entry` and can be invoked via a regular transaction even if its visibility is restricted to friends only. Learn more about function visibility at https://aptos.dev/en/build/smart-contracts/move-security-guidelines#function-visibility.
     severity: ERROR
     confidence: HIGH
     patterns:
