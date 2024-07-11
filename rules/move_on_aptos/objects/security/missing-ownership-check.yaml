@@ -40,14 +40,6 @@ rules:
                   - pattern-inside: if (...) { ... }
               # checker:
               - pattern-either:
-                  # wildcard patterns
-                  - pattern: |
-                      $SANITIZER(..., $OBJ, ..., ($SIGNER: &signer), ...)
-                  - pattern: |
-                      $SANITIZER(..., ($SIGNER: &signer), ..., $OBJ, ...)
-                  - pattern: $CHECK($OBJ)
-                  - pattern: $CHECK(& $OBJ)
-
                   # specific patterns
                   - pattern: aptos_framework::object::owner(& $OBJ)
                   - pattern: std::object::owner(& $OBJ)
@@ -62,13 +54,11 @@ rules:
         by-side-effect: true
     pattern-sinks:
       - patterns:
-        # the following patterns alone are not considered sinks
-        - pattern-not-inside: assert!(...)
-        - pattern-not-inside: exists<...>(...)
-        - pattern-not-inside: let $LEFT = object::object_address(...)
-        - pattern-not: let $LEFT = $OBJ.inner
-
-        # real sinks:
-        - pattern: $OBJ
+        - pattern-either:
+          - pattern: $FUNC<...>(..., $OBJ, ...)
+          - pattern: $FUNC(..., $OBJ, ...)
+        - metavariable-regex:
+            metavariable: $FUNC
+            regex: (transfer|borrow|deposit|withdraw|transfer|send|move)
         - focus-metavariable: $OBJ
       
