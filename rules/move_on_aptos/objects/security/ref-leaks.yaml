@@ -26,13 +26,15 @@ rules:
             public(friend) fun $FUN(...): $RETURN
       - metavariable-pattern:
           metavariable: $RETURN
-          patterns:
-            - pattern-either:
-              - pattern: signer
-              - pattern: "&signer"
+          pattern-either:
+            - pattern: signer
+            - pattern: "&signer"
 
-              # No FQN for ConstructorRef because there are multiple types of ConstructorRef
-              - pattern: "&ConstructorRef"
-              - pattern: ConstructorRef
+            # - pattern: "&ConstructorRef"
+            - pattern: "&std::object::ConstructorRef"
+            - pattern: "&aptos-framework::object::ConstructorRef"
+            # - pattern: ConstructorRef
+            - pattern: std::object::ConstructorRef
+            - pattern: aptos-framework::object::ConstructorRef
 
     severity: WARNING
