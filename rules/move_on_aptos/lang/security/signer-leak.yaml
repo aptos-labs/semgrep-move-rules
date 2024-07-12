@@ -1,0 +1,29 @@
+rules:
+  - id: signer-leak
+    languages: [move_on_aptos]
+    message: Public functions returning signer.
+    severity: INFO
+    patterns:
+      - pattern-not: |
+          #[test_only]
+          fun $FUN(...): ...
+      - pattern-not: |
+          #[test]
+          fun $FUN(...): ...
+      - pattern-not: |
+          #[test(...)]
+          fun $FUN(...): ...
+      
+      # Aptos libraries are exempted
+      - pattern-not-inside: |
+            module aptos_token_objects::$ANY { ... }
+      - pattern-not-inside: |
+            module aptos_framework::$ANY { ... }
+
+      - pattern: | 
+          public fun $FUN(...): $RETURN
+      - metavariable-pattern:
+          metavariable: $RETURN
+          pattern-either:
+            - pattern: signer
+            - pattern: "&signer"

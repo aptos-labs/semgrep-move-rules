@@ -1,7 +1,8 @@
 rules:
   - id: constructor-ref-leak
     languages: [move_on_aptos]
-    message: Public functions should not return constructor or signer (references).
+    message: Public functions should not return ConstructorRef https://aptos.dev/en/build/smart-contracts/move-security-guidelines#constructorref-leak.
+    severity: INFO
     patterns:
       - pattern-not: |
           #[test_only]
@@ -18,23 +19,15 @@ rules:
             module aptos_token_objects::$ANY { ... }
       - pattern-not-inside: |
             module aptos_framework::$ANY { ... }
-
-      - pattern-either:
-        - pattern: |
-            public fun $FUN(...): $RETURN
-        - pattern: |
-            public(friend) fun $FUN(...): $RETURN
+      
+      - pattern: | 
+          public fun $FUN(...): $RETURN
       - metavariable-pattern:
           metavariable: $RETURN
           pattern-either:
-            - pattern: signer
-            - pattern: "&signer"
-
-            # - pattern: "&ConstructorRef"
             - pattern: "&std::object::ConstructorRef"
             - pattern: "&aptos-framework::object::ConstructorRef"
-            # - pattern: ConstructorRef
             - pattern: std::object::ConstructorRef
             - pattern: aptos-framework::object::ConstructorRef
-
-    severity: WARNING
+            - pattern: 0x1::object::ConstructorRef
+            - pattern: "&0x1::object::ConstructorRef"
