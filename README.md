@@ -46,7 +46,12 @@ $ semgrep --config /path/to/semgrep-rules/complexity.yml --sarif -o leaks.sarif'
 ### Move
 | ID | Playground | Impact | Confidence | Description |
 | -- | :--------: | :----: | :--------: | ----------- |
-
+| public-friend-entry | :--------: | :----: | :--------: | Identify all functions where both scope identifier friend and entry are used, since doing this makes the function callable by cli even if `public(friend)` is used. |
+| public-friend-entry | :--------: | :----: | :--------: | Try to identify functions which used an object without verifying `&signer` owns the object. |
+| objects-in-group-stored-without-account | :--------: | :----: | :--------: | Identify functions that store different objects under the same resource group in the same account is not recommended. Transferring one of them can influence the entire collection. Objects should be stored in separate object accounts. |
+| constructor-ref-leak | :--------: | :----: | :--------: | Identify functions which leak the `ConstructorRef`. `ConstructorRef` allows adding resources to an object and generate other capabilities (or “Refs”). |
+| signer-leak | :--------: | :----: | :--------: | ----------- |
+| public_ramdomness | :--------: | :----: | :--------: | ----------- | | :--------: | :----: | :--------: | ----------- |
 
 ## Contributing
 
