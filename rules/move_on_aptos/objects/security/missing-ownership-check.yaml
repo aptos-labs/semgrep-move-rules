@@ -15,11 +15,11 @@ rules:
       - patterns:
           - pattern-either:
             - pattern-inside: |
-                fun $FN_NAME(..., $SIGNER: &signer, ..., $OBJ: Object<$TYPE>, ...) {
+                fun $FN_NAME(..., $SIGNER: &signer, ..., $OBJ: Object<$TYPE>, ...) : ... {
                   ...
                 }
             - pattern-inside: |
-                fun $FN_NAME(..., $OBJ: Object<$TYPE>, ..., $SIGNER: &signer, ...) {
+                fun $FN_NAME(..., $OBJ: Object<$TYPE>, ..., $SIGNER: &signer, ...) : ... {
                   ...
                 }
           - focus-metavariable: $OBJ
@@ -30,6 +30,7 @@ rules:
             # TODO: if interfile analysis is not enabled, consider adding some safe
             #       library functions to the standalone checker list, such as:
             - pattern: aptos_framework::code::freeze_code_object(..., $OBJ, ...)
+            - pattern: std::code::freeze_code_object(..., $OBJ, ...)
             - pattern: fungible_asset::deposit_sanity_check($OBJ, ...)
 
             # conditional checker
@@ -48,6 +49,7 @@ rules:
                   - pattern: std::object::is_owner($OBJ, ...)
 
                   - pattern: aptos_framework::object::owns($OBJ, ...)
+                  - pattern: std::object::owns($OBJ, ...)
 
                   - pattern: collection::creator($OBJ)
           - focus-metavariable: $OBJ
