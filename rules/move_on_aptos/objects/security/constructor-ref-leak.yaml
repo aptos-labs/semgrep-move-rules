@@ -20,14 +20,16 @@ rules:
       - pattern-not-inside: |
             module aptos_framework::$ANY { ... }
       
-      - pattern: | 
-          public fun $FUN(...): $RETURN
+      - pattern-either:
+        - pattern: |
+            public fun $FUN(...): $RETURN
+        - pattern: |
+            public fun $FUN(...): (..., $RETURN, ...)
       - metavariable-pattern:
           metavariable: $RETURN
           pattern-either:
-            - pattern: "&std::object::ConstructorRef"
-            - pattern: "&aptos-framework::object::ConstructorRef"
+            - pattern: ConstructorRef
+            - pattern: object::ConstructorRef
             - pattern: std::object::ConstructorRef
-            - pattern: aptos-framework::object::ConstructorRef
+            - pattern: aptos_framework::object::ConstructorRef
             - pattern: 0x1::object::ConstructorRef
-            - pattern: "&0x1::object::ConstructorRef"
