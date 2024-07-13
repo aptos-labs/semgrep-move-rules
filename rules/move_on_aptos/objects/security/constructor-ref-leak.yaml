@@ -1,8 +1,12 @@
 rules:
   - id: constructor-ref-leak
     languages: [move_on_aptos]
-    message: Public functions should not return ConstructorRef https://aptos.dev/en/build/smart-contracts/move-security-guidelines#constructorref-leak.
+    message: Public functions should not return ConstructorRef
     severity: INFO
+    metadata:
+      category: security
+      references:
+        - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#constructorref-leak
     patterns:
       - pattern-not: |
           #[test_only]
