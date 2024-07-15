@@ -49,5 +49,5 @@ rules:
             regex: (std|aptos_framework|0x1)
         - metavariable-regex:
             metavariable: $CREATE
-            regex: (create_named_object|create_object_address)
+            regex: (create_object_address)
         
