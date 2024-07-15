@@ -1,0 +1,53 @@
+rules:
+  - id: weak-object-seed
+    languages: [move_on_aptos]
+    message: >-
+      Simply putting concatenating the address, module, and struct names into a vector is insufficient To prevent collisions, use a more robust method to generate unique identifiers for your tokens.
+    mode: taint
+    severity: WARNING
+    metadata:
+      likehood: MEDIUM
+      impact: MEDIUM
+      confidence: MEDIUM
+      category: security
+      references:
+        - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#token-identifier-collision
+      license: Copyright 2024 Aptos Labs
+    pattern-sources:
+      - patterns:
+        - pattern-either:
+          - pattern: |
+              ($VAR: $NS::string::String)
+          - pattern: |
+              $NS::string::$SOMETHING(...)
+        - metavariable-regex:
+            metavariable: $NS
+            regex: (std|aptos_framework|0x1)
+      - pattern: |
+          ($VAR: vector<...>)
+      - pattern: |
+          vector::empty<...>()
+      # TODO: This is a bug in the grammar: vector[...] is ambiguous and resolved as member access.
+      # It's not difficult to fix, just set the precedence of vector[...] to be higher.
+      # However, it's not a priority, and this is a workaround for now.
+      - pattern: vector[..., ...]
+    pattern-sanitizers:
+      - patterns:
+        - pattern: |
+            $VEC_OR_STR::$APPEND(&mut $VAR, <... object::object_address(...) ...>)
+        - focus-metavariable: $VAR
+        - metavariable-regex:
+            metavariable: $APPEND
+            regex: (append|push_back)
+        by-side-effect: true
+    pattern-sinks:
+      - patterns:
+        - pattern: $NS::object::$CREATE(..., $VAR)
+        - focus-metavariable: $VAR
+        - metavariable-regex:
+            metavariable: $NS
+            regex: (std|aptos_framework|0x1)
+        - metavariable-regex:
+            metavariable: $CREATE
+            regex: (create_named_object|create_object_address)
+        
