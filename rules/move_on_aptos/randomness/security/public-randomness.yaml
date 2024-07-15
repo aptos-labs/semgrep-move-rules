@@ -8,7 +8,7 @@ rules:
     metadata:
       likehood: LOW
       impact: HIGH
-      confidence: INFO
+      confidence: LOW
       category: security
       references:
         - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#randomness---test-and-abort
