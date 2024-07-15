@@ -44,6 +44,8 @@ rules:
                   ($VAR : $STRUCT)
 
       # To minimize false positives, we require that there should be at least one
-      # object operation on $STRUCT type.
+      # object transfer on $STRUCT type.
       - pattern: object::$TRANSFER<$STRUCT>(...)
-                
+      - metavariable-regex:
+          metavariable: $TRANSFER
+          regex: (transfer)

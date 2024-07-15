@@ -2,8 +2,8 @@ rules:
   - id: public-randomness
     languages: [move_on_aptos]
     message: >-
-    If a public function directly or indirectly invokes the randomness API, a malicious user can abuse the composability of this function and abort the transaction if the result is not as desired.
-    This allows the user to keep trying until they achieve a beneficial outcome, undermining the randomness.
+      If a public function directly or indirectly invokes the randomness API, a malicious user can abuse the composability of this function and abort the transaction if the result is not as desired.
+      This allows the user to keep trying until they achieve a beneficial outcome, undermining the randomness.
     severity: INFO
     metadata:
       likehood: LOW
