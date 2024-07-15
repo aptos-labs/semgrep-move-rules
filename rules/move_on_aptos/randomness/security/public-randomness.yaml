@@ -1,9 +1,18 @@
 rules:
   - id: public-randomness
     languages: [move_on_aptos]
-    message: |
-      Public functions invoke randomness API.
-    severity: WARNING
+    message: >-
+    If a public function directly or indirectly invokes the randomness API, a malicious user can abuse the composability of this function and abort the transaction if the result is not as desired.
+    This allows the user to keep trying until they achieve a beneficial outcome, undermining the randomness.
+    severity: INFO
+    metadata:
+      likehood: LOW
+      impact: HIGH
+      confidence: INFO
+      category: security
+      references:
+        - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#randomness---test-and-abort
+      license: Copyright 2024 Aptos Labs
     patterns:
       # Randomness macros
       - pattern-either:

@@ -1,12 +1,16 @@
 rules:
   - id: missing-ownership-check
-    message: The function does not verify if the user owns the obj passed to it.
-      This can allow anyone to use another person's subscription, bypassing the
-      payment requirement.
+    languages: [move_on_aptos]
+    message: The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use another person's object, such as representing a subscription, bypassing the payment requirement.
     severity: ERROR
-    confidence: MEDIUM
-    languages:
-      - move_on_aptos
+    metadata:
+      likehood: MEDIUM
+      impact: HIGH
+      confidence: MEDIUM
+      category: security
+      references:
+        - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#object-ownership-check
+      license: Copyright 2024 Aptos Labs
     mode: taint
     options:
       interfile: true

@@ -1,12 +1,16 @@
 rules:
   - id: constructor-ref-leak
     languages: [move_on_aptos]
-    message: Public functions should not return ConstructorRef
-    severity: INFO
+    message: Leaking the ConstructorRef via public functions can create significant security vulnerabilities. The ConstructorRef permits adding resources to an object and generating other capabilities (or "Refs"), which can be exploited by attackers to manipulate the object beyond intended use.
+    severity: WARNING
     metadata:
+      likehood: MEDIUM
+      impact: HIGH
+      confidence: LOW
       category: security
       references:
         - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#constructorref-leak
+      license: Copyright 2024 Aptos Labs
     patterns:
       - pattern-not: |
           #[test_only]

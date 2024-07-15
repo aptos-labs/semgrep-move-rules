@@ -1,13 +1,19 @@
 rules:
   - id: objects-in-group-stored-without-account
-    languages:
-      - move_on_aptos
-    severity: WARNING
-    confidence: MEDIUM
-    message: >
+    languages: [move_on_aptos]
+    message: >-
       Storing different objects under the same resource group in the same account is not recommended.
       Transferring one of them can influence the entire collection. Objects should be stored at
       separate object accounts.
+    severity: WARNING
+    metadata:
+      likehood: MEDIUM
+      impact: MEDIUM
+      confidence: MEDIUM
+      category: security
+      references:
+        - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#object-accounts
+      license: Copyright 2024 Aptos Labs
     patterns:
       - pattern-inside: |-
           #[resource_group_member(group = ...)]
