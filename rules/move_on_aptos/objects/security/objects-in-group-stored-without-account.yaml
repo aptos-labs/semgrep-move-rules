@@ -7,7 +7,7 @@ rules:
       separate object accounts.
     severity: WARNING
     metadata:
-      likehood: MEDIUM
+      likelihood: MEDIUM
       impact: MEDIUM
       confidence: MEDIUM
       category: security

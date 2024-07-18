@@ -4,7 +4,7 @@ rules:
     message: Returning a signer or &signer from a public function can introduce significant security vulnerabilities. When a function exposes a signer, it grants the recipient the ability to perform any operations on behalf of that address, such as transferring assets, withdrawing funds, and deploying contracts.
     severity: INFO
     metadata:
-      likehood: LOW
+      likelihood: LOW
       impact: HIGH
       confidence: LOW
       category: security

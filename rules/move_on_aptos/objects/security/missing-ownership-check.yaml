@@ -4,7 +4,7 @@ rules:
     message: The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use another person's object, such as representing a subscription, bypassing the payment requirement.
     severity: ERROR
     metadata:
-      likehood: MEDIUM
+      likelihood: MEDIUM
       impact: HIGH
       confidence: MEDIUM
       category: security

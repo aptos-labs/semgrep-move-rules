@@ -4,11 +4,14 @@ rules:
     message: >-
       Simply putting concatenating the address, module, and struct names into a vector is insufficient To prevent collisions, use a more robust method to generate unique identifiers for your tokens.
     mode: taint
+    options:
+      interfile: true
+      symbolic_propagation: true
     severity: WARNING
     metadata:
-      likehood: MEDIUM
+      likelihood: MEDIUM
       impact: MEDIUM
-      confidence: MEDIUM
+      confidence: LOW
       category: security
       references:
         - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#token-identifier-collision
@@ -16,15 +19,15 @@ rules:
     pattern-sources:
       - patterns:
         - pattern-either:
-          - pattern: |
-              ($VAR: $NS::string::String)
+          # - pattern: |
+          #     ($VAR: $NS::string::String)
           - pattern: |
               $NS::string::$SOMETHING(...)
         - metavariable-regex:
             metavariable: $NS
             regex: (std|aptos_framework|0x1)
-      - pattern: |
-          ($VAR: vector<...>)
+      # - pattern: |
+      #     ($VAR: vector<...>)
       - pattern: |
           vector::empty<...>()
       # TODO: This is a bug in the grammar: vector[...] is ambiguous and resolved as member access.
@@ -42,12 +45,12 @@ rules:
         by-side-effect: true
     pattern-sinks:
       - patterns:
-        - pattern: $NS::object::$CREATE(..., $VAR)
-        - focus-metavariable: $VAR
+        - pattern: $NS::object::$CREATE(...)
+        # - focus-metavariable: $VAR
         - metavariable-regex:
             metavariable: $NS
             regex: (std|aptos_framework|0x1)
         - metavariable-regex:
             metavariable: $CREATE
-            regex: (create_object_address)
+            regex: (create_object_address|create_named_object)
         

@@ -2,9 +2,9 @@ rules:
   - id: public-friend-entry
     languages: [move_on_aptos]
     message: Using both the scope identifier `friend` and `entry` in a function make it callable by any transaction, even if public(friend) is used. This can inadvertently expose sensitive functionality to unauthorized users, potentially leading to security vulnerabilities. 
-    severity: ERROR
+    severity: WARNING
     metadata:
-      likehood: HIGH
+      likelihood: HIGH
       impact: HIGH
       confidence: HIGH
       category: security
