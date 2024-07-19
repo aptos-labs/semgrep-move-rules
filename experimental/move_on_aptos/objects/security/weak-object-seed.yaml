@@ -22,7 +22,7 @@ rules:
           # - pattern: |
           #     ($VAR: $NS::string::String)
           - pattern: |
-              $NS::string::$SOMETHING(...)
+              b"..."
         - metavariable-regex:
             metavariable: $NS
             regex: (std|aptos_framework|0x1)
@@ -37,11 +37,16 @@ rules:
     pattern-sanitizers:
       - patterns:
         - pattern: |
-            $VEC_OR_STR::$APPEND(&mut $VAR, <... object::object_address(...) ...>)
+            $VEC_OR_STR::$APPEND(&mut $VAR, <... $SAFE_NAME ...>)
         - focus-metavariable: $VAR
         - metavariable-regex:
             metavariable: $APPEND
             regex: (append|push_back)
+        - metavariable-pattern:
+            metavariable: $SAFE_NAME
+            pattern-either:
+              - pattern: object::object_address(...)
+              - pattern: type_info::type_name<...>()
         by-side-effect: true
     pattern-sinks:
       - patterns:
