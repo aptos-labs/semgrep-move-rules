@@ -2,7 +2,9 @@ rules:
   - id: weak-object-seed
     languages: [move_on_aptos]
     message: >-
-      Simply putting concatenating the address, module, and struct names into a vector is insufficient To prevent collisions, use a more robust method to generate unique identifiers for your tokens.
+      Concatenating the module, struct and symbol names into the identifier is insufficient to prevent collisions.
+      Consider using a more robust method, such as `object::object_address`, `type_info::type_name`, to generate
+      unique identifiers for your tokens.
     mode: taint
     options:
       interfile: true
