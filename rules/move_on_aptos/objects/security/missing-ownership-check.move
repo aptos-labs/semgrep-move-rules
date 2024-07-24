@@ -1,5 +1,7 @@
 module 0x42::example {
- 
+    
+    use std::object;
+    
     struct Subscription has key {
         end_subscription: u64
     }
