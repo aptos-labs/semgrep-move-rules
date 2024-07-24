@@ -6,7 +6,7 @@ rules:
       This allows the user to keep trying until they achieve a beneficial outcome, undermining the randomness.
     severity: INFO
     metadata:
-      likehood: LOW
+      likelihood: LOW
       impact: HIGH
       confidence: LOW
       category: security
