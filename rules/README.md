@@ -4,8 +4,8 @@
 ## Good to Know
 
 ### Full Qualified Names
-These rules correctly resolve FQNs if the correct import of the dependency at the beginning of the file is done via the `use` keywork.
+These rules correctly resolve FQNs if the dependencies are correctly imported at the beginning of the file via the `use` keyword. It shouldn’t be a problem for valid programs. However, you should be aware when testing rules.
 
 --- 
 
-**Disclaimer:** Usage of the experimental rules should be done with caution, and we appreciate any feedback or contributions to help improve their accuracy and effectiveness.
+**Disclaimer:** Usage of the experimental rules should be done with caution, and we appreciate any feedbacks or contributions to help improve their accuracy and effectiveness.
