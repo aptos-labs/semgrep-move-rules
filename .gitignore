@@ -15,3 +15,6 @@
 
 # Intellij
 .idea/
+
+#python env
+.venv/
