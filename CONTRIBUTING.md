@@ -47,7 +47,7 @@ semgrep --test --test-ignore-todo --metrics=off
 To test a specific file:
 
 ```bash
-semgrep --test --test-ignore-todo --metrics=off --config ./move/entry-friend-used-in-conjunction.yaml ./move/entry-friend-used-in-conjunction.move
+semgrep --test --test-ignore-todo --metrics=off --config ./rules/move_on_aptos/lang/entry-friend-used-in-conjunction.yaml ./rules/move_on_aptos/lang/entry-friend-used-in-conjunction.move
 ```
 
 ### Development Practices
@@ -58,7 +58,7 @@ Before publishing a new rule or updating an existing one, review the checklist b
 
 - [ ] Add metadata. Semgrep [defines which metadata fields are required](https://semgrep.dev/docs/contributing/contributing-to-semgrep-rules-repository/#writing-a-rule-for-semgrep-registry)
     - [ ] Add a non-standard `metadata.description` field. It will be used as a description in the `semgrep-rules` README table.
-    - For `metadata.references` provide a link to official documentation, Trail of Bits blogpost, GitHub issue, or some reputable website. Avoid linking to websites that may disappear in the future.
+    - For `metadata.references` provide a link to official documentation, blogpost, GitHub issue, or some reputable website. Avoid linking to websites that may disappear in the future.
 
 - [ ] Validate metadata against the official schema
     - Download python validation script `wget https://raw.githubusercontent.com/returntocorp/semgrep-rules/develop/.github/scripts/validate-metadata.py`

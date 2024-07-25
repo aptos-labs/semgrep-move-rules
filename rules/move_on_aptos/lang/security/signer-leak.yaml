@@ -1,0 +1,48 @@
+rules:
+  - id: signer-leak
+    languages: [move_on_aptos]
+    message: Returning a signer or &signer from a public function can introduce significant security vulnerabilities. When a function exposes a signer, it grants the recipient the ability to perform any operations on behalf of that address, such as transferring assets, withdrawing funds, and deploying contracts.
+    severity: INFO
+    metadata:
+      likelihood: LOW
+      impact: HIGH
+      confidence: LOW
+      category: security
+      references:
+      - https://aptos.dev/en/build/smart-contracts/move-security-guidelines.
+      license: Copyright 2024 Aptos Labs
+    patterns:
+      - pattern-not: |
+          #[test_only]
+          fun $FUN(...): ...
+      - pattern-not: |
+          #[test]
+          fun $FUN(...): ...
+      - pattern-not: |
+          #[test(...)]
+          fun $FUN(...): ...
+      
+      # Aptos libraries are exempted
+      - pattern-not-inside: |
+            module aptos_token_objects::$ANY { ... }
+      - pattern-not-inside: |
+            module aptos_framework::$ANY { ... }
+
+      - pattern-either: 
+        - pattern: |
+            public fun $FUN(...): signer
+        - pattern: |
+            public fun $FUN(...): &signer
+        - pattern: |
+            public fun $FUN(...): (..., signer, ...)
+        - pattern: |
+            public fun $FUN(...): (..., &signer, ...)
+      #
+      # Metavariable matching reference is broken on the Semgrep side. For now, we
+      # will manually enumerate the patterns (`signer` and `&signer`).
+      #
+      # - metavariable-pattern:
+      #     metavariable: $RETURN
+      #     pattern-either:
+      #       - pattern: signer
+      #       - pattern: "&signer"

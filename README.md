@@ -8,6 +8,22 @@ Trail of Bit's [Testing Handbook](https://appsec.guide/docs/static-analysis/semg
 
 ## Using Semgrep
 
+Before testing rules, make sure your Semgrep version `>= 1.80.0`:
+```shell
+# Check the OSS semgrep 
+$ semgrep --version
+1.81.0
+```
+
+If you have pro engine installed and want to leverage it, also ensure its version `>= 1.80.0`, as the pro engine **might have a different version** from the OSS engine:
+```shell
+$ semgrep install-semgrep-pro
+Semgrep Pro Engine will be installed in /some/path/.../
+Downloading... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 180.3/180.3 MB 77.6 MB/s 0:00:00
+
+Successfully installed Semgrep Pro Engine (version 1.80.0)!
+```
+
 You can clone this repository, navigate to the root folder of your project, and run individual rules using the command below :
 
 ```shell
