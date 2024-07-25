@@ -6,7 +6,7 @@ rules:
     metadata:
       likelihood: LOW
       impact: HIGH
-      confidence: LOW
+      confidence: MEDIUM
       category: security
       references:
       - https://aptos.dev/en/build/smart-contracts/move-security-guidelines.
