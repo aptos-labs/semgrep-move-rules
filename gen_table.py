@@ -13,7 +13,7 @@ SEVERITY_MAP = {
 }
 
 IMPACT_MAP = {
-    'LOW': "🔵",
+    'LOW': "🟢",
     'MEDIUM': "🟡",
     'HIGH': "🔴",
     None: "",
