@@ -26,6 +26,10 @@ rules:
                 fun $FN_NAME(..., $OBJ: Object<$TYPE>, ..., $SIGNER: &signer, ...) : ... {
                   ...
                 }
+            - pattern-inside: |
+                fun $FN_NAME(..., $OBJ: Object<$TYPE>, ...) : ... {
+                  ...
+                }
           - focus-metavariable: $OBJ
     pattern-sanitizers:
       - patterns:
