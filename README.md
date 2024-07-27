@@ -59,15 +59,16 @@ $ semgrep --config /path/to/semgrep-rules/complexity.yml --sarif -o leaks.sarif'
 
 ## Rules
 
+
+
 ### Move
-| ID | Playground | Impact | Confidence | Description |
-| -- | :--------: | :----: | :--------: | ----------- |
-| public-friend-entry | :--------: | :----: | :--------: | Identify all functions where both scope identifier friend and entry are used, since doing this makes the function callable by cli even if `public(friend)` is used. |
-| public-friend-entry | :--------: | :----: | :--------: | Try to identify functions which used an object without verifying `&signer` owns the object. |
-| objects-in-group-stored-without-account | :--------: | :----: | :--------: | Identify functions that store different objects under the same resource group in the same account is not recommended. Transferring one of them can influence the entire collection. Objects should be stored in separate object accounts. |
-| constructor-ref-leak | :--------: | :----: | :--------: | Identify functions which leak the `ConstructorRef`. `ConstructorRef` allows adding resources to an object and generate other capabilities (or “Refs”). |
-| signer-leak | :--------: | :----: | :--------: | ----------- |
-| public_ramdomness | :--------: | :----: | :--------: | ----------- | | :--------: | :----: | :--------: | ----------- |
+ID | Severity | IMPACT | Confidence | Message
+:-:|:--------:|:------:|:----------:|--------
+`public-randomness` | ℹ️ | 🔴 | 🌕 | If a public function directly or indirectly invokes the randomness API, a malicious user can abuse the composability of this function and abort the transaction if the result is not as desired. This allows the user to keep trying until they achieve a beneficial outcome, undermining the randomness.
+`missing-ownership-check` | ❌ | 🔴 | 🌗 | The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use another person's object, such as representing a subscription, bypassing the payment requirement.
+`constructor-ref-leak` | ⚠️ | 🔴 | 🌕 | Leaking the ConstructorRef via public functions can create significant security vulnerabilities. The ConstructorRef permits adding resources to an object and generating other capabilities (or "Refs"), which can be exploited by attackers to manipulate the object beyond intended use.
+`signer-leak` | ℹ️ | 🔴 | 🌗 | Returning a signer or &signer from a public function can introduce significant security vulnerabilities. When a function exposes a signer, it grants the recipient the ability to perform any operations on behalf of that address, such as transferring assets, withdrawing funds, and deploying contracts.
+`public-friend-entry` | ⚠️ | 🔴 | 🌘 | Using both the scope identifier `friend` and `entry` in a function make it callable by any transaction, even if public(friend) is used. This can inadvertently expose sensitive functionality to unauthorized users, potentially leading to security vulnerabilities.
 
 ## Contributing
 
