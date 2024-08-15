@@ -23,3 +23,12 @@ module 0xcafe::public_randomness {
         0
     }
 }
+
+#[test(module = b"public_randomness")]
+module 0xcafe::test_public_randomness {
+    // ok: public-randomness
+    #[randomness]
+    public fun signature_5() : u64 {
+        0
+    }
+}

@@ -12,6 +12,7 @@ rules:
       - https://aptos.dev/en/build/smart-contracts/move-security-guidelines.
       license: Copyright 2024 Aptos Labs
     patterns:
+      # Not inside test functions and modules
       - pattern-not: |
           #[test_only]
           fun $FUN(...): ...
@@ -21,6 +22,15 @@ rules:
       - pattern-not: |
           #[test(...)]
           fun $FUN(...): ...
+      - pattern-not-inside: |
+          #[test_only]
+          module $ADDR::$MODULE { ... }
+      - pattern-not-inside: |
+          #[test]
+          module $ADDR::$MODULE { ... }
+      - pattern-not-inside: |
+          #[test(...)]
+          module $ADDR::$MODULE { ... }
       
       # Aptos libraries are exempted
       - pattern-not-inside: |

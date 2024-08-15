@@ -20,3 +20,11 @@ module 0xabcdef::public_friend_entry {
 
     }
 }
+
+#[test]
+module 0xabcdef::test_public_friend_entry {
+    // ok: public-friend-entry
+    public(friend) entry fun signature_5() {
+
+    }
+}

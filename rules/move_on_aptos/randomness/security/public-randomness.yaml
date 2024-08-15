@@ -40,3 +40,12 @@ rules:
       - pattern-not: |
           #[test_only]
           fun $FUN (...) : ...
+      - pattern-not-inside: |
+          #[test_only]
+          module $ADDR::$MODULE { ... }
+      - pattern-not-inside: |
+          #[test]
+          module $ADDR::$MODULE { ... }
+      - pattern-not-inside: |
+          #[test(...)]
+          module $ADDR::$MODULE { ... }

@@ -27,3 +27,11 @@ module 0xcafe::constructor_ref_leak {
 
     }
 }
+
+#[test(module = b"constructor_ref_leak")]
+module 0xcafe::test_constructor_ref_leak {
+    // ok: constructor-ref-leak
+    public fun signature_6() : ConstructorRef {
+
+    }
+}

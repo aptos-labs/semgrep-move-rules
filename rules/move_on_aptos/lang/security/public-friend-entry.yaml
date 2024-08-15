@@ -21,5 +21,15 @@ rules:
       - pattern-not: |
           #[test(...)]
           fun $FUN (...) : ...
+      - pattern-not-inside: |
+          #[test_only]
+          module $ADDR::$MODULE { ... }
+      - pattern-not-inside: |
+          #[test]
+          module $ADDR::$MODULE { ... }
+      - pattern-not-inside: |
+          #[test(...)]
+          module $ADDR::$MODULE { ... }
+      
       - pattern: |
           public(friend) entry fun $FUN (...) : ...

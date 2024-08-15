@@ -48,3 +48,11 @@ module 0xdeadbeef::signer_leak {
         
     }
 }
+
+#[test_only]
+module 0xdeadbeef::test_signer_leak {
+    // ok: signer-leak
+    public fun signature_10() : signer {
+        
+    }
+}
