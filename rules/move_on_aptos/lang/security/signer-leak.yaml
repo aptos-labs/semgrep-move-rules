@@ -25,12 +25,6 @@ rules:
       - pattern-not-inside: |
           #[test_only]
           module $ADDR::$MODULE { ... }
-      - pattern-not-inside: |
-          #[test]
-          module $ADDR::$MODULE { ... }
-      - pattern-not-inside: |
-          #[test(...)]
-          module $ADDR::$MODULE { ... }
       
       # Aptos libraries are exempted
       - pattern-not-inside: |

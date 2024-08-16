@@ -24,7 +24,7 @@ module 0xcafe::public_randomness {
     }
 }
 
-#[test(module = b"public_randomness")]
+#[test_only]
 module 0xcafe::test_public_randomness {
     // ok: public-randomness
     #[randomness]
