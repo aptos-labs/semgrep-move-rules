@@ -21,7 +21,10 @@ rules:
       - pattern-not: |
           #[test(...)]
           fun $FUN(...): ...
-      
+      - pattern-not-inside: |
+          #[test_only]
+          module $ADDR::$MODULE { ... }
+
       # Aptos libraries are exempted
       - pattern-not-inside: |
             module aptos_token_objects::$ANY { ... }
