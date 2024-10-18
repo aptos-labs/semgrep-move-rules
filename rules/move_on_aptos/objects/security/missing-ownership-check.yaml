@@ -1,7 +1,8 @@
 rules:
   - id: missing-ownership-check
     languages: [move_on_aptos]
-    message: The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use another person's object, such as representing a subscription, bypassing the payment requirement.
+    #message: The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use any object
+    message: DEBUG "$ENTRYPOINT", obj="$OBJ", signer="$SIGNER" 
     severity: ERROR
     metadata:
       likelihood: MEDIUM
@@ -17,58 +18,220 @@ rules:
       symbolic_propagation: true
     pattern-sources:
       - patterns:
-          - pattern-either:
+        - pattern-either:
+            #TODO use regex instead
             - pattern-inside: |
-                fun $FN_NAME(..., $SIGNER: &signer, ..., $OBJ: Object<$TYPE>, ...) : ... {
-                  ...
-                }
+                public fun $ENTRYPOINT(..., $SIGNER: &signer ,..., $OBJ: aptos_framework::object::Object<$TYPE>, ...) : ... { ... }
             - pattern-inside: |
-                fun $FN_NAME(..., $OBJ: Object<$TYPE>, ..., $SIGNER: &signer, ...) : ... {
-                  ...
-                }
+                entry fun $ENTRYPOINT(..., $SIGNER: &signer ,..., $OBJ: aptos_framework::object::Object<$TYPE>, ...) : ... { ... }
             - pattern-inside: |
-                fun $FN_NAME(..., $OBJ: Object<$TYPE>, ...) : ... {
-                  ...
-                }
-          - focus-metavariable: $OBJ
-    pattern-sanitizers:
-      - patterns:
-          - pattern-either:
-            # standalone checker
-            # TODO: if interfile analysis is not enabled, consider adding some safe
-            #       library functions to the standalone checker list, such as:
-            - pattern: aptos_framework::code::freeze_code_object(..., $OBJ, ...)
-            - pattern: std::code::freeze_code_object(..., $OBJ, ...)
-            - pattern: fungible_asset::deposit_sanity_check($OBJ, ...)
+                public(friend) entry fun $ENTRYPOINT(..., $SIGNER: &signer ,..., $OBJ: aptos_framework::object::Object<$TYPE>, ...) : ... { ... }
+            - pattern-inside: |
+                public entry fun $ENTRYPOINT(..., $SIGNER: &signer ,..., $OBJ: aptos_framework::object::Object<$TYPE>, ...) : ... { ... }
+            - pattern-inside: |
+                public fun $ENTRYPOINT(..., $OBJ: aptos_framework::object::Object<$TYPE>, ..., $SIGNER: &signer, ...) : ... { ... }
+            - pattern-inside: |
+                entry fun $ENTRYPOINT(..., $OBJ: aptos_framework::object::Object<$TYPE>, ..., $SIGNER: &signer, ...) : ... { ... }
+            - pattern-inside: |
+                public(friend) entry fun $ENTRYPOINT(..., $OBJ: aptos_framework::object::Object<$TYPE>, ..., $SIGNER: &signer, ...) : ... { ... }
+            - pattern-inside: |
+                public entry fun $ENTRYPOINT(..., $OBJ: aptos_framework::object::Object<$TYPE>, ..., $SIGNER: &signer, ...) : ... { ... }
+        - focus-metavariable:
+          - $OBJ
+          - $SIGNER
 
-            # conditional checker
-            - patterns:
-              # scope: inside assert() or if() block
-              - pattern-either:
-                  - pattern-inside: assert!(...)
-                  - pattern-inside: if (...) { ... }
-              # checker:
-              - pattern-either:
-                  # specific patterns
-                  - pattern: aptos_framework::object::owner(& $OBJ)
-                  - pattern: std::object::owner(& $OBJ)
-
-                  - pattern: aptos_framework::object::is_owner($OBJ, ...)
-                  - pattern: std::object::is_owner($OBJ, ...)
-
-                  - pattern: aptos_framework::object::owns($OBJ, ...)
-                  - pattern: std::object::owns($OBJ, ...)
-
-                  - pattern: collection::creator($OBJ)
-          - focus-metavariable: $OBJ
+        # this is only for test
+        - metavariable-pattern:
+            metavariable: $TYPE
+            patterns:
+                - pattern-not: | 
+                    aptos_framework::fungible_asset::Metadata
         by-side-effect: true
-    pattern-sinks:
+    pattern-sanitizers:
+        #TODO
+        #1. use regex
+        #2. use propagator
       - patterns:
         - pattern-either:
-          - pattern: $FUNC<...>(..., $OBJ, ...)
-          - pattern: $FUNC(..., $OBJ, ...)
-        - metavariable-regex:
-            metavariable: $FUNC
-            regex: (transfer|borrow|deposit|withdraw|transfer|send|move)
-        - focus-metavariable: $OBJ
-      
+            # aptos_framework::object
+          - pattern: |
+              assert!(aptos_framework::object::owner<$TYPE>($OBJ) == aptos_framework::signer::address_of($SIGNER),$ERROR_CODE);
+          - pattern: |
+              let $ADDRESS_OF_SIGNER = aptos_framework::signer::address_of($SIGNER);
+              ...
+              assert!(aptos_framework::object::owner<$TYPE>($OBJ) == $ADDRESS_OF_SIGNER,$ERROR_CODE);
+          - pattern: |
+              let $ADDRESS_OF_SIGNER = aptos_framework::signer::address_of($SIGNER);
+              ...
+              let $OBJECT_OWNER = aptos_framework::object::owner<$TYPE>($OBJ);
+              ...
+              assert!($OBJECT_OWNER == $ADDRESS_OF_SIGNER,$ERROR_CODE);
+          - pattern: |
+              let $OBJECT_OWNER = aptos_framework::object::owner<$TYPE>($OBJ);
+              ...
+              let $ADDRESS_OF_SIGNER = aptos_framework::signer::address_of($SIGNER);
+              ...
+              assert!($OBJECT_OWNER == $ADDRESS_OF_SIGNER,$ERROR_CODE);
+          - pattern: |
+              aptos_framework::object::transfer<$TYPE>($SIGNER, $OBJ, $ANY_VAR);
+          - pattern: |
+              aptos_framework::object::transfer_to_object<$TYPE>($SIGNER,$OBJ, $ANY_VAR);
+
+            #start test
+          - pattern-inside: |
+              aptos_framework::object::is_owner<$TYPE>($OBJ, aptos_framework::signer::address_of($SIGNER))
+        
+          - pattern-inside: |
+              assert!(aptos_framework::object::is_owner<$TYPE>($OBJ, aptos_framework::signer::address_of($SIGNER)),...);
+          - pattern: |
+              aptos_framework::object::is_owner<$TYPE>($OBJ, aptos_framework::signer::address_of($SIGNER))
+        
+          - pattern: |
+              assert!(aptos_framework::object::is_owner<$TYPE>($OBJ, aptos_framework::signer::address_of($SIGNER)),...);
+          - pattern-inside: |
+              aptos_framework::object::is_owner($OBJ, aptos_framework::signer::address_of($SIGNER))
+        
+          - pattern-inside: |
+              assert!(aptos_framework::object::is_owner($OBJ, aptos_framework::signer::address_of($SIGNER)),...);
+          - pattern: |
+              aptos_framework::object::is_owner($OBJ, aptos_framework::signer::address_of($SIGNER))
+        
+          - pattern: |
+              assert!(aptos_framework::object::is_owner($OBJ, aptos_framework::signer::address_of($SIGNER)),...);
+
+
+
+          - pattern-inside: |
+              aptos_framework::object::is_owner<$TYPE>($OBJ, aptos_framework::signer::address_of($SIGNER))
+        
+          - pattern-inside: |
+              assert!(aptos_framework::object::is_owner<$TYPE>($OBJ, aptos_framework::signer::address_of($SIGNER)),$ERROR_CODE);
+          - pattern: |
+              aptos_framework::object::is_owner<$TYPE>($OBJ, aptos_framework::signer::address_of($SIGNER))
+        
+          - pattern: |
+              assert!(aptos_framework::object::is_owner<$TYPE>($OBJ, aptos_framework::signer::address_of($SIGNER)),$ERROR_CODE);
+          - pattern-inside: |
+              aptos_framework::object::is_owner($OBJ, aptos_framework::signer::address_of($SIGNER))
+        
+          - pattern-inside: |
+              assert!(aptos_framework::object::is_owner($OBJ, aptos_framework::signer::address_of($SIGNER)),$ERROR_CODE);
+          - pattern: |
+              aptos_framework::object::is_owner($OBJ, aptos_framework::signer::address_of($SIGNER))
+        
+          - pattern: |
+              assert!(aptos_framework::object::is_owner($OBJ, aptos_framework::signer::address_of($SIGNER)),$ERROR_CODE);
+
+            ##end test
+
+
+          - pattern: |
+              let $ADDRESS_OF_SIGNER = aptos_framework::signer::address_of($SIGNER);
+              ...
+              assert!(aptos_framework::object::is_owner<$TYPE>($OBJ, $ADDRESS_OF_SIGNER),$ERROR_CODE);
+          
+          - pattern: |
+              assert!(aptos_framework::object::owns<$TYPE>($OBJ, aptos_framework::signer::address_of($SIGNER)),$ERROR_CODE);
+
+          - pattern: |
+              let $ADDRESS_OF_SIGNER = aptos_framework::signer::address_of($SIGNER);
+              ...
+              assert!(aptos_framework::object::owns<$TYPE>($OBJ, $ADDRESS_OF_SIGNER),$ERROR_CODE);
+
+
+            # aptos_framework::code
+          - pattern: |
+              aptos_framework::code::freeze_code_object($SIGNER,$OBJ);
+          - pattern: |
+              aptos_framework::code::freeze_code_object($SIGNER,$OBJ);
+            # aptos_framework::object_code_deployment
+          - pattern: |
+              aptos_framework::upgrade::upgrade($SIGNER,$OBJ);
+          - pattern: |
+              aptos_framework::upgrade::freeze_code_object($SIGNER,...,$OBJ);
+            # aptos_framework::primary_fungible_store
+          - pattern: |
+              aptos_framework::primary_fungible_store::withdraw($SIGNER,$OBJ,...);
+          - pattern: |
+              aptos_framework::primary_fungible_store::transfer($SIGNER,$OBJ,...);
+          - pattern: |
+              aptos_framework::primary_fungible_store::transfer_assert_minimum_deposit($SIGNER,$OBJ,...);
+
+            # aptos_framework::fungible_asset
+          - pattern: |
+              aptos_framework::fungible_asset::transfer($SIGNER,$OBJ,...);
+          - pattern: |
+              aptos_framework::fungible_asset::withdraw($SIGNER,$OBJ,...);
+          - pattern: |
+              aptos_framework::fungible_asset::upgrade_store_to_concurrent($SIGNER,$OBJ,...);
+
+
+            # aptos_framework::dispatchable_fungible_asset
+          - pattern: |
+              aptos_framework::dispatchable_fungible_asset::withdraw($SIGNER,$OBJ,...);
+          - pattern: |
+              aptos_framework::dispatchable_fungible_asset::transfer($SIGNER,$OBJ,...);
+          - pattern: |
+              aptos_framework::dispatchable_fungible_asset::transfer_assert_minimum_deposit($SIGNER,$OBJ,...);
+
+            # 0x4::token
+          - pattern: |
+              0x4::token::create_token($SIGNER,$OBJ,...);
+          - pattern: |
+              0x4::token::create_token_as_collection_owner($SIGNER,$OBJ,...);
+          - pattern: |
+              0x4::token::create_numbered_token_object($SIGNER,$OBJ,...); 
+          - pattern: |
+              0x4::token::create_numbered_token_as_collection_owner($SIGNER,$OBJ,...); 
+          - pattern: |
+              0x4::token::create_named_token_object($SIGNER,$OBJ,...);
+          - pattern: |
+              0x4::token::create_named_token_as_collection_owner($SIGNER,$OBJ,...); 
+            #0x4::aptos_token
+          - pattern: |
+              0x4::aptos_token::burn<$TYPE>($SIGNER,$OBJ); 
+          - pattern: |
+              0x4::aptos_token::freeze_transfer<$TYPE>($SIGNER,$OBJ); 
+          - pattern: |
+              0x4::aptos_token::unfreeze_transfer<$TYPE>($SIGNER,$OBJ); 
+          - pattern: |
+              0x4::aptos_token::set_description<$TYPE>($SIGNER,$OBJ,...); 
+          - pattern: |
+              0x4::aptos_token::set_name<$TYPE>($SIGNER,$OBJ,...);
+          - pattern: |
+              0x4::aptos_token::set_uri<$TYPE>($SIGNER,$OBJ,...); 
+          - pattern: |
+              0x4::aptos_token::add_property<$TYPE>($SIGNER,$OBJ,...);
+          - pattern: |
+              0x4::aptos_token::add_typed_property<$TYPE>($SIGNER,$OBJ,...); 
+          - pattern: |
+              0x4::aptos_token::remove_property<$TYPE>($SIGNER,$OBJ,...); 
+          - pattern: |
+              0x4::aptos_token::update_property<$TYPE>($SIGNER,$OBJ,...); 
+          - pattern: |
+              0x4::aptos_token::update_typed_property<$TYPE>($SIGNER,$OBJ,...);   
+          - pattern: |
+              0x4::aptos_token::set_collection_description<$TYPE>($SIGNER,$OBJ,...);   
+          - pattern: |
+              0x4::aptos_token::set_collection_royalties<$TYPE>($SIGNER,$OBJ,...);   
+          - pattern: |
+              0x4::aptos_token::set_collection_royalties_call<$TYPE>($SIGNER,$OBJ,...);   
+          - pattern: |
+              0x4::aptos_token::set_collection_uri<$TYPE>($SIGNER,$OBJ,...);
+
+          #temporary token_minter
+          - pattern: | 
+                0xf50bac511401dd7671108053e71ee3b5a60aef091c3c959eb8b47cb217945af3::$MODULE::$FUNCTION(...)
+          - pattern: | 
+                0x39673a89d85549ad0d7bef3f53510fe70be2d5abaac0d079330ade5548319b62::$MODULE::$FUNCTION(...)
+
+        - focus-metavariable:
+          - $OBJ
+          - $SIGNER
+        by-side-effect: true
+
+    pattern-sinks:
+      - at-exit: true
+        pattern-either:
+          - pattern: return ...
+          - pattern: $F(...);
