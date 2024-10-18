@@ -28,9 +28,16 @@ rules:
       
       # Aptos libraries are exempted
       - pattern-not-inside: |
+            module 0x4::$ANY { ... }
+      - pattern-not-inside: |
             module aptos_token_objects::$ANY { ... }
       - pattern-not-inside: |
+            module 0x1::$ANY { ... }
+      - pattern-not-inside: |
             module aptos_framework::$ANY { ... }
+
+      - pattern-not: |
+          public fun $FUN(..., $VAR: &signer, ...): ...
 
       - pattern-either: 
         - pattern: |
@@ -41,12 +48,3 @@ rules:
             public fun $FUN(...): (..., signer, ...)
         - pattern: |
             public fun $FUN(...): (..., &signer, ...)
-      #
-      # Metavariable matching reference is broken on the Semgrep side. For now, we
-      # will manually enumerate the patterns (`signer` and `&signer`).
-      #
-      # - metavariable-pattern:
-      #     metavariable: $RETURN
-      #     pattern-either:
-      #       - pattern: signer
-      #       - pattern: "&signer"

@@ -27,7 +27,11 @@ rules:
 
       # Aptos libraries are exempted
       - pattern-not-inside: |
+            module 0x4::$ANY { ... }
+      - pattern-not-inside: |
             module aptos_token_objects::$ANY { ... }
+      - pattern-not-inside: |
+            module 0x1::$ANY { ... }
       - pattern-not-inside: |
             module aptos_framework::$ANY { ... }
       
