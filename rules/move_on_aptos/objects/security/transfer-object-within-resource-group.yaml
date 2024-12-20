@@ -1,0 +1,36 @@
+rules:
+  - id: objects-in-group-stored-without-account
+    languages: [move_on_aptos]
+    message: >-
+      When different objects are stored under the same resource group in the same account, moving one object moves them all.
+    severity: INFO
+    metadata:
+      likelihood: LOW
+      impact: MEDIUM
+      confidence: LOW
+      category: security
+      references:
+        - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#object-accounts
+      license: Copyright 2024 Aptos Labs
+    patterns:
+      - pattern-inside: |-
+          module $ADDRESS::$MODULE {
+            ...
+            #[resource_group_member(group = $OBJECT_GROUP)]
+            struct $STRUCT1 { ... }
+            ...
+            #[resource_group_member(group = $OBJECT_GROUP)]
+            struct $STRUCT2 { ... }
+          }
+
+      - pattern-either:
+          - pattern: aptos_framework::object::transfer(...)
+          - pattern: aptos_framework::object::transfer_with_ref(...)
+          - pattern: aptos_framework::object::transfer_call(...)
+          - pattern: aptos_framework::object::transfer_raw(...)
+          - pattern: aptos_framework::object::transfer_to_object(...)
+          - pattern: aptos_framework::object::transfer<$_>(...)
+          - pattern: aptos_framework::object::transfer_with_ref<$_>(...)
+          - pattern: aptos_framework::object::transfer_call<$_>(...)
+          - pattern: aptos_framework::object::transfer_raw<$_>(...)
+          - pattern: aptos_framework::object::transfer_to_object<$_>(...)

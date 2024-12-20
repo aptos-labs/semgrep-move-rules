@@ -16,30 +16,35 @@ rules:
     patterns:
       # Randomness macros
       - pattern-either:
-        - pattern: |
-            #[lint::allow_unsafe_randomness]
-            fun $FUN (...) : ...
-        - pattern: |
-            #[randomness]
-            fun $FUN (...) : ...
+          - pattern: |
+              #[lint::allow_unsafe_randomness]
+              fun $FUN (...) : ...
+          - pattern: |
+              #[randomness]
+              fun $FUN (...) : ...
 
       # Visibility control
       - pattern-either:
-        - pattern: |
-            public fun $FUN (...) : ...
-        - pattern: |
-            public entry fun $FUN (...) : ...
-      
+          - pattern: |
+              public fun $FUN (...) : ...
+          - pattern: |
+              public entry fun $FUN (...) : ...
+
+      # Not inside a deprecated function
+      - pattern-not-inside: >
+          fun $ENTRYPOINT(...): ... {
+            abort $_
+          }
       # Tests are exempted
       - pattern-not: |
           #[test]
-          fun $FUN (...) : ...
+          fun $FUN(...) : ...
       - pattern-not: |
           #[test(...)]
-          fun $FUN (...) : ...
+          fun $FUN(...) : ...
       - pattern-not: |
           #[test_only]
-          fun $FUN (...) : ...
+          fun $FUN(...) : ...
       - pattern-not-inside: |
           #[test_only]
           module $ADDR::$MODULE { ... }

@@ -1,50 +1,52 @@
 rules:
   - id: signer-leak
     languages: [move_on_aptos]
-    message: Returning a signer or &signer from a public function can introduce significant security vulnerabilities. When a function exposes a signer, it grants the recipient the ability to perform any operations on behalf of that address, such as transferring assets, withdrawing funds, and deploying contracts.
-    severity: INFO
+    message: The function exposes a signer, which grants the recipient the ability to perform any operations on behalf of that address, such as transferring assets, withdrawing funds, and deploying contracts.
+    severity: ERROR
     metadata:
-      likelihood: LOW
+      likelihood: MEDIUM
       impact: HIGH
       confidence: MEDIUM
       category: security
       references:
-      - https://aptos.dev/en/build/smart-contracts/move-security-guidelines.
+        - https://aptos.dev/en/build/smart-contracts/move-security-guidelines.
       license: Copyright 2024 Aptos Labs
     patterns:
-      # Not inside test functions and modules
+      #public functions without signer as argument
+      - pattern-either:
+          - pattern: |
+              public fun $ENTRYPOINT(...): signer
+          - pattern: |
+              public fun $ENTRYPOINT(...): &signer
+          - pattern: |
+              public fun $ENTRYPOINT(...): (..., signer, ...)
+          - pattern: |
+              public fun $ENTRYPOINT(...): (..., &signer, ...)
       - pattern-not: |
-          #[test_only]
-          fun $FUN(...): ...
+          public fun $ENTRYPOINT(..., $VAR: &signer, ...): ...
+
+      # Not inside a deprecated function
+      - pattern-not-inside: >
+          fun $ENTRYPOINT(...): ... {
+            abort $_
+          }
+
+      # Tests are exempted
       - pattern-not: |
           #[test]
-          fun $FUN(...): ...
+          fun $ENTRYPOINT(...) : ...
       - pattern-not: |
           #[test(...)]
-          fun $FUN(...): ...
+          fun $ENTRYPOINT(...) : ...
+      - pattern-not: |
+          #[test_only]
+          fun $ENTRYPOINT(...) : ...
       - pattern-not-inside: |
           #[test_only]
           module $ADDR::$MODULE { ... }
-      
-      # Aptos libraries are exempted
-      - pattern-not-inside: |
-            module 0x4::$ANY { ... }
-      - pattern-not-inside: |
-            module aptos_token_objects::$ANY { ... }
-      - pattern-not-inside: |
-            module 0x1::$ANY { ... }
-      - pattern-not-inside: |
-            module aptos_framework::$ANY { ... }
 
-      - pattern-not: |
-          public fun $FUN(..., $VAR: &signer, ...): ...
-
-      - pattern-either: 
-        - pattern: |
-            public fun $FUN(...): signer
-        - pattern: |
-            public fun $FUN(...): &signer
-        - pattern: |
-            public fun $FUN(...): (..., signer, ...)
-        - pattern: |
-            public fun $FUN(...): (..., &signer, ...)
+      # Exposing Signer inside Aptos libraries is intended
+      - pattern-not-inside: |
+          module aptos_token_objects::$ANY { ... }
+      - pattern-not-inside: |
+          module aptos_framework::$ANY { ... }

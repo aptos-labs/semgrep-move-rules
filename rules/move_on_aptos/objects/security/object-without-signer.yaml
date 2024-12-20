@@ -1,0 +1,57 @@
+rules:
+  - id: object-without-signer
+    languages: [move_on_aptos]
+    message: The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use any object
+    severity: INFO
+    metadata:
+      likelihood: LOW
+      impact: MEDIUM
+      confidence: LOW
+      category: security
+      references:
+        - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#object-ownership-check
+      license: Copyright 2024 Aptos Labs
+    patterns:
+      # only public or entry functions are checked
+      - pattern-either:
+          - pattern: |
+              public fun $ENTRYPOINT(..., $OBJ: aptos_framework::object::Object<$TYPE>, ...) : ... { ... }
+          - pattern: |
+              entry fun $ENTRYPOINT(..., $OBJ: aptos_framework::object::Object<$TYPE>, ...) : ... { ... }
+          - pattern: |
+              public entry fun $ENTRYPOINT(..., $OBJ: aptos_framework::object::Object<$TYPE>, ...) : ... { ... }
+          - pattern: |
+              public(friend) entry fun $ENTRYPOINT(..., $OBJ: aptos_framework::object::Object<$TYPE>, ...) : ... { ... }
+      # inline and public inline functions are not checked
+      - pattern-not: |
+          inline fun $ENTRYPOINT(..., $OBJ: aptos_framework::object::Object<$TYPE>, ...) : ... { ... }
+      - pattern-not: |
+          public inline fun $ENTRYPOINT(..., $OBJ: aptos_framework::object::Object<$TYPE>, ...) : ... { ... }
+      # functions with signer are not checked
+      - pattern-not: |
+          fun $ENTRYPOINT(..., $SIGNER: &signer ,..., $OBJ: aptos_framework::object::Object<$TYPE>, ...) : ... { ... }
+      - pattern-not: |
+          fun $ENTRYPOINT(..., $OBJ: aptos_framework::object::Object<$TYPE>, ..., $SIGNER: &signer, ...) : ... { ... }
+      # view functions are not checked
+      - pattern-not: |
+          #[view]
+          fun $ENTRYPOINT(..., $OBJ: aptos_framework::object::Object<$TYPE>, ...) : ... { ... }
+
+      # Not inside a deprecated function
+      - pattern-not-inside: >
+          fun $ENTRYPOINT(...): ... {
+            abort $_
+          }
+      # Tests are exempted
+      - pattern-not: |
+          #[test]
+          fun $ENTRYPOINT(...) : ...
+      - pattern-not: |
+          #[test(...)]
+          fun $ENTRYPOINT(...) : ...
+      - pattern-not: |
+          #[test_only]
+          fun $ENTRYPOINT(...) : ...
+      - pattern-not-inside: |
+          #[test_only]
+          module $ADDR::$MODULE { ... }
