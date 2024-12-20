@@ -65,6 +65,7 @@ $ semgrep --config /path/to/semgrep-rules/complexity.yml --sarif -o leaks.sarif'
 ID | Severity | IMPACT | Confidence | Message
 :-:|:--------:|:------:|:----------:|--------
 `signer-leak` | ❌ | 🔴 | 🌗 | The function exposes a signer, which grants the recipient the ability to perform any operations on behalf of that address, such as transferring assets, withdrawing funds, and deploying contracts.
+`signer-leak-with-param-check` | ❌ | 🔴 | 🌗 | The function exposes a signer, which grants the recipient the ability to perform any operations on behalf of that address, such as transferring assets, withdrawing funds, and deploying contracts. Ensure that signer is not used as parameter.
 `public-friend-entry` | ⚠️ | 🟡 | 🌗 | Using both the scope identifier `friend` and `entry` in a function make it callable by any transaction, even if public(friend) is used. This can inadvertently expose sensitive functionality to unauthorized users.
 `missing-ownership-check` | ❌ | 🔴 | 🌕 | The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use any object
 `object-without-signer` | ℹ️ | 🟡 | 🌕 | The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use any object
