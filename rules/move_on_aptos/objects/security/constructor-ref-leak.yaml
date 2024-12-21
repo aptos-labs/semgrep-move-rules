@@ -1,46 +1,45 @@
 rules:
   - id: constructor-ref-leak
     languages: [move_on_aptos]
-    message: Leaking the ConstructorRef via public functions can create significant security vulnerabilities. The ConstructorRef permits adding resources to an object and generating other capabilities (or "Refs"), which can be exploited by attackers to manipulate the object beyond intended use.
+    message: Leaking the ConstructorRef via public functions permits adding resources to an object and generating other capabilities (or "Refs"), which can be used by attackers to manipulate the object beyond intended use.
     severity: WARNING
     metadata:
       likelihood: MEDIUM
       impact: HIGH
-      confidence: LOW
+      confidence: MEDIUM
       category: security
       references:
         - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#constructorref-leak
       license: Copyright 2024 Aptos Labs
     patterns:
-      - pattern-not: |
-          #[test_only]
-          fun $FUN(...): ...
+      - pattern-either:
+          - pattern: |
+              public fun $ENTRYPOINT(...): aptos_framework::object::ConstructorRef
+          - pattern: |
+              public fun $ENTRYPOINT(...): (..., aptos_framework::object::ConstructorRef, ...)
+
+        # Not inside a deprecated function
+      - pattern-not-inside: >
+          fun $ENTRYPOINT(...): ... {
+            abort $_
+          }
+
+      # Tests are exempted
       - pattern-not: |
           #[test]
-          fun $FUN(...): ...
+          fun $ENTRYPOINT(...) : ...
       - pattern-not: |
           #[test(...)]
-          fun $FUN(...): ...
+          fun $ENTRYPOINT(...) : ...
+      - pattern-not: |
+          #[test_only]
+          fun $ENTRYPOINT(...) : ...
       - pattern-not-inside: |
           #[test_only]
           module $ADDR::$MODULE { ... }
 
-      # Aptos libraries are exempted
+      # Exposing CostructorRef inside Aptos libraries is intended
       - pattern-not-inside: |
-            module aptos_token_objects::$ANY { ... }
+          module aptos_token_objects::$ANY { ... }
       - pattern-not-inside: |
-            module aptos_framework::$ANY { ... }
-      
-      - pattern-either:
-        - pattern: |
-            public fun $FUN(...): $RETURN
-        - pattern: |
-            public fun $FUN(...): (..., $RETURN, ...)
-      - metavariable-pattern:
-          metavariable: $RETURN
-          pattern-either:
-            - pattern: ConstructorRef
-            - pattern: object::ConstructorRef
-            - pattern: std::object::ConstructorRef
-            - pattern: aptos_framework::object::ConstructorRef
-            - pattern: 0x1::object::ConstructorRef
+          module aptos_framework::$ANY { ... }

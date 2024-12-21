@@ -1,29 +1,36 @@
 rules:
   - id: public-friend-entry
     languages: [move_on_aptos]
-    message: Using both the scope identifier `friend` and `entry` in a function make it callable by any transaction, even if public(friend) is used. This can inadvertently expose sensitive functionality to unauthorized users, potentially leading to security vulnerabilities. 
+    message: Using both the scope identifier `friend` and `entry` in a function make it callable by any transaction, even if public(friend) is used. This can inadvertently expose sensitive functionality to unauthorized users.
     severity: WARNING
     metadata:
-      likelihood: HIGH
-      impact: HIGH
-      confidence: HIGH
+      likelihood: MEDIUM
+      impact: MEDIUM
+      confidence: MEDIUM
       category: security
       references:
-      - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#function-visibility.
+        - https://aptos.dev/en/build/smart-contracts/move-security-guidelines#function-visibility.
       license: Copyright 2024 Aptos Labs
     patterns:
-      - pattern-not: |
-          #[test_only]
-          fun $FUN (...) : ...
+      - pattern-inside: |
+          public(friend) entry fun $ENTRYPOINT(...) : ... { ... }
+
+      # Not inside a deprecated function
+      - pattern-not-inside: >
+          fun $ENTRYPOINT(...): ... {
+            abort $_
+          }
+
+      # Tests are exempted
       - pattern-not: |
           #[test]
-          fun $FUN (...) : ...
+          fun $ENTRYPOINT(...) : ...
       - pattern-not: |
           #[test(...)]
-          fun $FUN (...) : ...
+          fun $ENTRYPOINT(...) : ...
+      - pattern-not: |
+          #[test_only]
+          fun $ENTRYPOINT(...) : ...
       - pattern-not-inside: |
           #[test_only]
           module $ADDR::$MODULE { ... }
-      
-      - pattern: |
-          public(friend) entry fun $FUN (...) : ...

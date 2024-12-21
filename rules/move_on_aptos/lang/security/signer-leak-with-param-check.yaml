@@ -1,7 +1,7 @@
 rules:
-  - id: signer-leak
+  - id: signer-leak-with-param-check
     languages: [move_on_aptos]
-    message: The function exposes a signer, which grants the recipient the ability to perform any operations on behalf of that address, such as transferring assets, withdrawing funds, and deploying contracts.
+    message: The function exposes a signer, which grants the recipient the ability to perform any operations on behalf of that address, such as transferring assets, withdrawing funds, and deploying contracts. This rule checks for cases where there is no signer parameter in the function signature.
     severity: ERROR
     metadata:
       likelihood: MEDIUM
@@ -22,6 +22,8 @@ rules:
               public fun $ENTRYPOINT(...): (..., signer, ...)
           - pattern: |
               public fun $ENTRYPOINT(...): (..., &signer, ...)
+      - pattern-not: |
+          public fun $ENTRYPOINT(..., $VAR: &signer, ...): ...
 
       # Not inside a deprecated function
       - pattern-not-inside: >
