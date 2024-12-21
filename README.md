@@ -65,10 +65,10 @@ $ semgrep --config /path/to/semgrep-rules/complexity.yml --sarif -o leaks.sarif'
 ID | Severity | IMPACT | Confidence | Message
 :-:|:--------:|:------:|:----------:|--------
 `signer-leak` | ❌ | 🔴 | 🌗 | The function exposes a signer, which grants the recipient the ability to perform any operations on behalf of that address, such as transferring assets, withdrawing funds, and deploying contracts.
-`signer-leak-with-param-check` | ❌ | 🔴 | 🌗 | The function exposes a signer, which grants the recipient the ability to perform any operations on behalf of that address, such as transferring assets, withdrawing funds, and deploying contracts. Ensure that signer is not used as parameter.
+`signer-leak-with-param-check` | ❌ | 🔴 | 🌗 | The function exposes a signer, which grants the recipient the ability to perform any operations on behalf of that address, such as transferring assets, withdrawing funds, and deploying contracts. This rule checks for cases where there is no signer parameter in the function signature.
 `public-friend-entry` | ⚠️ | 🟡 | 🌗 | Using both the scope identifier `friend` and `entry` in a function make it callable by any transaction, even if public(friend) is used. This can inadvertently expose sensitive functionality to unauthorized users.
-`missing-ownership-check` | ❌ | 🔴 | 🌕 | The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use any object
-`object-without-signer` | ℹ️ | 🟡 | 🌕 | The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use any object
+`missing-ownership-check` | ❌ | 🔴 | 🌕 | The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use any object.
+`object-without-signer` | ℹ️ | 🟡 | 🌕 | The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use any object.
 `constructor-ref-leak` | ⚠️ | 🔴 | 🌗 | Leaking the ConstructorRef via public functions permits adding resources to an object and generating other capabilities (or "Refs"), which can be used by attackers to manipulate the object beyond intended use.
 `objects-in-group-stored-without-account` | ℹ️ | 🟡 | 🌕 | When different objects are stored under the same resource group in the same account, moving one object moves them all.
 `public-randomness` | ℹ️ | 🔴 | 🌕 | If a public function directly or indirectly invokes the randomness API, a malicious user can abuse the composability of this function and abort the transaction if the result is not as desired. This allows the user to keep trying until they achieve a beneficial outcome, undermining the randomness.
