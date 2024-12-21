@@ -1,7 +1,7 @@
 rules:
   - id: object-without-signer
     languages: [move_on_aptos]
-    message: The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use any object
+    message: The function does not verify the ownership of the object passed to it by the user. This can allow anyone to use any object.
     severity: INFO
     metadata:
       likelihood: LOW
