@@ -42,6 +42,10 @@ rules:
           fun $ENTRYPOINT(...): ... {
             abort $_
           }
+      - metavariable-pattern:
+          metavariable: $TYPE
+          patterns:
+            - pattern-not: aptos_framework::fungible_asset::Metadata
       # Tests are exempted
       - pattern-not: |
           #[test]
