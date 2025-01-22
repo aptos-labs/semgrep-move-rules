@@ -1,5 +1,5 @@
 rules:
-  - id: objects-in-group-stored-without-account
+  - id: transfer-object-within-resource-group
     languages: [move_on_aptos]
     message: >-
       When different objects are stored under the same resource group in the same account, moving one object moves them all.
