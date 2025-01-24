@@ -1,0 +1,54 @@
+name: Publish Semgrep Rules
+
+# Trigger the workflow on push to main and on merge of PR
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+# This job publishes Semgrep rules to the public registry
+# It runs when a PR is merged to main or on direct pushes to main
+jobs:
+  publish:
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      # Install Semgrep CLI tool
+      - name: Install Semgrep
+        run: |
+          python -m pip install --upgrade pip
+          pip install semgrep
+
+      # Login to Semgrep using API token
+      - name: Authenticate with Semgrep
+        env:
+          SEMGREP_API_KEY: ${{ secrets.SEMGREP_API_TOKEN }}
+        run: |
+          semgrep login
+
+      # Publish all rules in the rules/ directory to Semgrep Registry as public
+      - name: Publish Rules to Semgrep Registry
+        env:
+          SEMGREP_API_KEY: ${{ secrets.SEMGREP_API_TOKEN }}
+        run: |
+          semgrep publish --config rules/ --visibility=public
+
+      # Clean up by logging out from Semgrep
+      - name: Logout from Semgrep
+        run: |
+          semgrep logout
